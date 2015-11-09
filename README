@@ -1,0 +1,51 @@
+This directory contains the initial release of the source code used in Kislyuk et al., 2011 [1]. The code can be executed by running
+
+$ ./CorePanGenome.pl
+
+$ ./CorePanGenome.pl genome1.gbk genome2.gbk [...]
+
+$ ./CorePanGenome.pl genome1.gbk genome2.gbk [...] --min_ortho_coverage=0.6 --min_ortho_identity=0.6
+
+The only dependencies are BioPerl and NCBI BLAST. Further settings may be modified by editing the source code file CorePanGenome.pl.
+
+This set of scripts is responsible for steps B-E in Figure 3 of [1]. The input files in GenBank format are obtained from external sources.
+
+The input consists of a set of GenBank formatted files with annotated CDS regions. Only annotated CDS regions will be used from each file as input to BLASTP. The options --min_ortho_coverage and --min_ortho_identity control the cutoff minima for declaring two genes homologous on the basis of their identity and reciprocal coverage.
+
+Support for performing a sweep of these parameters is available via the options --ortho_coverage_step and --ortho_identity_step. The sweep proceeds from the specified minima by the specified steps up to value 1 of each parameter, iterating over all combinations.
+
+The output is emitted into the subfolder "xcdir/report" of the current directory. The report is subdivided into folders by (i, c) setting, e.g. "0.6i_0.6c". Each folder contains the following files:
+
+pw_fluidity.csv - The pairwise fluidity statistic, defined and used in [1]. Each line contains the timestep (a stage in the sampling when that many genomes are available), the average, standard deviation, min, max and median of the pairwise fluidity statistic obtained by sampling the genomes from the full input genome set.
+
+report.txt - Summarizes the statistics below. Contains a listing of gene counts for each input file, CHoG counts, and a histogram of the number of genomes participating in each CHoG.
+
+fluidity.csv - An estimate of the fluidity for each subset size from 2 to N, where N is the total number of genomes in the analysis. For values <N, the estimate nu_hat is obtained by sampling subsets:
+    nu_hat = (1/K) \sum_{m=2}^{M}{(m(m-1)/(M(M-1))) G_m}
+    K = average number of genes/genome = avg_genes
+    M = total number of genomes = tot_genomes
+    G_m = number of COGs present in m of M genomes
+In addition, the S_CHAO1 estimator is computed on the first line.
+
+chogs.csv - Each line contains the index of a CHoG (cluster of homologous genes, not a COG but a representation of a gene family) and indicator variables representing its membership in the genomes supplied as input.
+set.list - The list of names of genomes supplied as input.
+pair_shared.csv - The symmetric matrix of shared CHoGs for all pairs of participating genomes. The ordering is the same as in set.list.
+pair_total.csv - The symmetric matrix of total CHoGs for all pairs of participating genomes. The ordering is the same as in set.list.
+rarefaction.csv - Rarefaction analysis on CHoGs. Columns are: timestep, bin, average, stdev, min, max, median. The timestep refers to a stage in the sampling when N genomes are available (the membership of set N is sampled from the full set). The bin is the number of genomes that a given CHoG belongs to, and subsequent columns describe the distribution of the number of CHoGs belonging to that bin.
+
+See the source code for further details.
+
+In addition to the core functionality available in CorePanGenome.pl and its daughter scripts, the following auxiliary scripts are supplied:
+
+genluid.m - A Matlab script which calculates fluidity and its variance for a group of genomes.  It takes as input two matrices: (i) a matrix of shared genes amongst all genome pairs; (ii) a matrix of total genes amongst all genome pairs.  
+
+compute_tree_fluidity.pl - Given a result of an all-vs.-all CorePanGenome.pl run and a phylogenetic tree in Newick format, computes fluidities for each internal node of the tree.
+
+mkmreport.pl - Converts the report folder into a Matlab data structure and saves it into a .m file, then runs Matlab or Octave to write the file as a .mat file.
+
+prune_tree.pl - A utility to rewrite a Newick-formatted phylogenetic tree to retain only named nodes of interest.
+mobility.pl - A non-functional placeholder script for future integrative measures of genome fluidity and gene mobility.
+
+All code is made available under the terms of the GNU General Public License, found in the file LICENSE.
+
+[1] Genomic fluidity: an integrative view of gene diversity within microbial populations. Andrey O Kislyuk, Bart Haegeman, Nicholas H Bergman  and Joshua S Weitz. BMC Genomics 2011, 12:32. doi:10.1186/1471-2164-12-32 http://www.biomedcentral.com/1471-2164/12/32
