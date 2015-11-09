@@ -1,0 +1,2 @@
+# Genomic-fluidity-scripts
+A collection of Perl scripts to calculate gene-level similarity among annotated genomes as used in Kislyuk et al. BMC Genomics 12: 32 (2011). The scripts can be executed from the command line and the only dependencies are BioPerl and NCBI BLAST. Separately, we include a MATLAB script to calculate fluidity and its variance directly from matrices of shared and total gene counts.
