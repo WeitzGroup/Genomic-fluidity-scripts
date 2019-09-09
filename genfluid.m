@@ -1,11 +1,8 @@
-function [gfluid,gfl_var]=genfluid(shared,total)
-% function [gfluid,gfl_var]=genfluid(shared,total);
+function [gfluid,gfl_var]=genfluid(shared)
+% function [gfluid,gfl_var]=genfluid(shared);
 % computes fuidity estimate and its variance estimate
 % input: shared: NxN matrix, with N number of sampled genomes
 %         - element (i,j) contains number of shared genes (gene families)
-%                                  between genome i and j
-%        total: NxN matrix, with N number of sampled genomes
-%         - element (i,j) contains number of total genes (gene families)
 %                                  between genome i and j
 % output: gfluid: estimate for fluidity of genomes group
 %         gfl_var: estimate for variance of fluidity estimate
@@ -19,13 +16,13 @@ function [gfluid,gfl_var]=genfluid(shared,total)
 % BMC Genomics 2011, 12:32. doi:10.1186/1471-2164-12-32 
 % http://www.biomedcentral.com/1471-2164/12/32
 
+
 % compute number of genomes N
 ss=size(shared);
-ss2=size(total);
-if ss(1)~=ss(2) || ss2(1)~=ss2(2) || ss(1)~=ss2(1),
+if ss(1)~=ss(2),
     gfluid=NaN;
     gfl_var=NaN;
-    disp('matrices shared and total are not compatible')
+    disp('matrix shared is not square')
     return
 end
 
@@ -35,7 +32,7 @@ simi=zeros(N,N);
 for cnt1=1:N-1,
     for cnt2=cnt1+1:N,
         simi(cnt1,cnt2)=2*shared(cnt1,cnt2) ...
-            /(total(cnt1,cnt2)+shared(cnt1,cnt2));
+            /(shared(cnt1,cnt1)+shared(cnt2,cnt2));
     end
 end
 gfluid=1-sum(sum(simi))*2/N/(N-1);
